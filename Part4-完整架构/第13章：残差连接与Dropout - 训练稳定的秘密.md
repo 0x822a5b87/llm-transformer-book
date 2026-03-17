@@ -278,7 +278,7 @@ output = dropout(input)  # 不会丢弃，直接输出
 我们的结论非常简单：
 
 - 对于那些可以冗余的，丢失一部分数据对结果没有影响的，我们可以使用dropout，并且在这种算子上执行 `dropout` 反而可以锻炼在失去一部分特征后的识别能力，使得程序更加健壮。**在transformer中，`embedding` 和 `FFN` 都是特征提取，而特征提取本身是可以冗余的**；
-- 信息是唯一的、不可替代的的算子适合加：**在transformer中，softmax和residual connection 中不适合加**：
+- 信息是唯一的、不可替代的的算子不适合加 `dropout`：**在transformer中，softmax和residual connection 中不适合加**：
   -  `softmax` 本身是为了归一化，如果使用 `dropout` 屏蔽了一部分值，那么整体的概率将不等于一，从另外一个角度来讲，这里是为了分配 `attention`，如果我们屏蔽一部分值会直接导致我们transformer中强调的**关注全局语义**的原则冲突；
   - `ResNet` 就更简单了，对输入数据进行 `dropout` 会导致在多层的网络结构中消失；
 
