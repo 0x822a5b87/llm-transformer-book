@@ -271,6 +271,19 @@ output = dropout(input)  # 不会丢弃，直接输出
 
 注意：PyTorch 的 Dropout 会自动处理训练/推理模式的切换。
 
+### 13.3.8 哪些位置适合添加dropout
+
+我们在整个计算的过程中，其实会有非常多的地方需要用到 `dropout`，哪一部分输入之前我们加上 `dropout` 会更好呢？
+
+我们的结论非常简单：
+
+- 对于那些可以冗余的，丢失一部分数据对结果没有影响的，我们可以使用dropout，并且在这种算子上执行 `dropout` 反而可以锻炼在失去一部分特征后的识别能力，使得程序更加健壮。**在transformer中，`embedding` 和 `FFN` 都是特征提取，而特征提取本身是可以冗余的**；
+- 信息是唯一的、不可替代的的算子适合加：**在transformer中，softmax和residual connection 中不适合加**：
+  -  `softmax` 本身是为了归一化，如果使用 `dropout` 屏蔽了一部分值，那么整体的概率将不等于一，从另外一个角度来讲，这里是为了分配 `attention`，如果我们屏蔽一部分值会直接导致我们transformer中强调的**关注全局语义**的原则冲突；
+  - `ResNet` 就更简单了，对输入数据进行 `dropout` 会导致在多层的网络结构中消失；
+
+那么，为什么可以对 `embedding` 进行 `dropout`，而不能对 `softmax` 进行 `dropout` 呢？本质上来说， `embedding` 向量中的每个元素对应的是一个特征，如我们前面所说，特征是冗余的，是可以被消除的。而 `softmax`中的每一个元素，是 `attention` 的分数，它是全局的，不能被消除的。
+
 ---
 
 ## 13.4 Pre-Norm vs Post-Norm
